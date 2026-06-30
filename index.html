@@ -1,0 +1,1135 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlayPixelGen Game House - Aluguel de PS5</title>
+    <!-- Tailwind CSS CDN Oficial e Estável -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #121212;
+        }
+        .neon-text {
+            text-shadow: 0 0 10px #0073ff;
+        }
+        .neon-border {
+            box-shadow: 0 0 15px rgba(0, 115, 255, 0.15);
+        }
+    </style>
+</head>
+<body class="text-gray-200 min-h-screen flex flex-col justify-between selection:bg-blue-500 selection:text-white">
+
+    <!-- HEADER / CABEÇALHO -->
+    <header class="border-b border-gray-800 bg-black/60 backdrop-blur py-6 text-center sticky top-0 z-50">
+        <h1 class="text-3xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-purple-600">
+            PLAYPIXELGEN
+        </h1>
+        <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest font-bold">Game House & Aluguéis</p>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 py-8 w-full space-y-12">
+        
+        <!-- APRESENTAÇÃO / HERO -->
+        <section class="text-center space-y-4">
+            <h2 class="text-2xl md:text-4xl font-extrabold text-white leading-tight">
+                O SEU SETUP DOS SONHOS NA SUA CASA! 🎮🔥
+            </h2>
+            <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base">
+                Para que gastar R$ 4.000 se você pode cansar de jogar no mesmo lugar? Alugue o console PS5 Slim com assinatura PS Plus Extra ativa inclusa por uma fração do preço. Quanto mais tempo joga, mais barato fica o drop!
+            </p>
+            <div class="inline-flex items-center gap-2 bg-blue-950/40 border border-blue-800/60 px-4 py-2 rounded-full text-xs text-blue-400 font-bold tracking-wide">
+                📍 Atendimento Exclusivo: Maracanaú, CE e Fortaleza, CE
+            </div>
+        </section>
+
+        <!-- FORMULÁRIO DE ENCOMENDA E CONFIGURADOR -->
+        <section class="bg-zinc-900/90 border border-zinc-800 rounded-2xl p-6 md:p-8 shadow-2xl relative neon-border">
+            
+            <h3 class="text-xl font-bold text-white mb-6 border-b border-zinc-800 pb-2 flex items-center gap-2">
+                ⚔️ MONTE O SEU SETUP (Configuração do Drop)
+            </h3>
+
+            <!-- BANNER DE BLOQUEIO DE REGIÃO (DINÂMICO) -->
+            <div id="blockBanner" class="hidden bg-red-950/80 border-2 border-red-500 rounded-xl p-4 mb-6 flex flex-col gap-2">
+                <div class="flex items-center gap-2 text-red-400 font-black text-sm uppercase tracking-wider">
+                    <span>⚠️ ÁREA FORA DE ALCANCE!</span>
+                </div>
+                <p class="text-xs text-gray-300 leading-relaxed">
+                    Infelizmente, identificamos que o seu endereço está fora do nosso mapa de entrega. No momento, o nosso spawn de entrega atende exclusivamente as cidades de <strong>Fortaleza, CE</strong> e <strong>Maracanaú, CE</strong>.
+                </p>
+            </div>
+
+            <form id="rentalForm" class="space-y-6" onsubmit="sendToWhatsApp(event)">
+                
+                <!-- DADOS DE CONTACTO -->
+                <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-blue-400 uppercase tracking-wide">1. Identidade do Player</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">Nome Completo <span class="text-red-500">*</span></label>
+                            <input type="text" id="name" required placeholder="Nome e Sobrenome" oninput="validateName(this.value)"
+                                   class="w-full bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white transition-all">
+                            <div id="nameStatus" class="text-[10px] text-gray-500 mt-1">Insira seu nome completo para fins contratuais.</div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">WhatsApp (Celular) <span class="text-red-500">*</span></label>
+                            <input type="text" id="phone" required placeholder="+55 (85) 99999-9999" oninput="maskPhone(this)"
+                                   class="w-full bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white transition-all">
+                            <div id="phoneStatus" class="text-[10px] text-gray-500 mt-1">Obrigatório celular: +55 (DDD) 9XXXX-XXXX</div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">E-mail de Identificação <span class="text-red-500">*</span></label>
+                            <div class="flex items-center gap-2">
+                                <input type="text" id="emailPrefix" required placeholder="seu.usuario" oninput="assembleAndValidateEmail()"
+                                       class="w-1/2 bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white transition-all">
+                                <span class="text-gray-500 font-black text-sm">@</span>
+                                <select id="emailDomain" required onchange="assembleAndValidateEmail()"
+                                        class="w-1/2 bg-zinc-950 border border-zinc-700 rounded-xl px-3 py-3 text-sm focus:outline-none focus:border-blue-500 text-white transition-all cursor-pointer">
+                                    <option value="gmail.com">gmail.com (Google)</option>
+                                    <option value="outlook.com">outlook.com (Microsoft)</option>
+                                    <option value="hotmail.com">hotmail.com (Microsoft)</option>
+                                    <option value="live.com">live.com (Microsoft)</option>
+                                    <option value="outlook.com.br">outlook.com.br (Microsoft)</option>
+                                    <option value="yahoo.com">yahoo.com (Yahoo)</option>
+                                    <option value="yahoo.com.br">yahoo.com.br (Yahoo)</option>
+                                    <option value="icloud.com">icloud.com (Apple)</option>
+                                    <option value="uol.com.br">uol.com.br (UOL)</option>
+                                    <option value="bol.com.br">bol.com.br (BOL)</option>
+                                    <option value="terra.com.br">terra.com.br (Terra)</option>
+                                </select>
+                            </div>
+                            <div id="emailStatus" class="text-[10px] text-gray-500 mt-1"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-zinc-800/80 my-4">
+
+                <!-- ENDEREÇO COM VALIDAÇÃO DE CEP (API VIACEP + CÁLCULO DE KM) -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-blue-400 uppercase tracking-wide">2. Coordenadas de Logística e Despacho</h4>
+                        <span class="text-xs text-gray-500">Consulta de CEP em Tempo Real (Obrigatório)</span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">CEP <span class="text-red-500">*</span></label>
+                            <input type="text" id="cep" required placeholder="61900-650" oninput="maskCEP(this)" onblur="searchCEP(this.value)"
+                                   class="w-full bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white transition-all">
+                            <div id="cepStatus" class="text-xs text-gray-500 mt-1">CEP obrigatório para validar região</div>
+                        </div>
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">Rua / Avenida</label>
+                            <input type="text" id="street" required placeholder="Aguardando CEP..." 
+                                   class="w-full bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">Número / Apto <span class="text-red-500">*</span></label>
+                            <input type="text" id="number" required placeholder="Nº 123" 
+                                   class="w-full bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white transition-all">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">Bairro</label>
+                            <input type="text" id="neighborhood" required placeholder="Aguardando CEP..." 
+                                   class="w-full bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">Cidade / Município</label>
+                            <select id="city" required onchange="calculateTotal()" class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white transition-all">
+                                <option value="Maracanaú">Maracanaú, Ceará</option>
+                                <option value="Fortaleza">Fortaleza, Ceará</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400">Estado</label>
+                            <input type="text" id="state" required value="CE" readonly
+                                   class="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-gray-500 cursor-not-allowed">
+                        </div>
+                    </div>
+
+                    <!-- RESULTADO DO CÁLCULO DE DISTÂNCIA E LOGÍSTICA -->
+                    <div id="logisticsResult" class="hidden bg-zinc-950/60 border border-blue-900/40 rounded-xl p-4 mt-2 grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                        <div class="p-2 border-r border-zinc-800 last:border-0">
+                            <span class="text-[10px] uppercase font-bold text-gray-400 block">Distância de Spawn (Hub)</span>
+                            <span id="calculatedKm" class="text-lg font-black text-white">0.0 km</span>
+                        </div>
+                        <div class="p-2 border-r border-zinc-800 last:border-0">
+                            <span class="text-[10px] uppercase font-bold text-gray-400 block">Taxa de Entrega (Ida)</span>
+                            <span id="deliveryTax" class="text-lg font-black text-emerald-400">R$ 0,00</span>
+                        </div>
+                        <div class="p-2 last:border-0">
+                            <span class="text-[10px] uppercase font-bold text-gray-400 block">Taxa de Devolução (Volta)</span>
+                            <span id="returnTax" class="text-lg font-black text-emerald-400">R$ 0,00</span>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-zinc-800/80 my-4">
+
+                <!-- CONFIGURAÇÃO DO ALUGUEL -->
+                <div class="space-y-4">
+                    <h4 class="text-sm font-bold text-blue-400 uppercase tracking-wide">3. Configuração do Hardware</h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <!-- SELEÇÃO DOS PLANOS -->
+                        <div class="space-y-3">
+                            <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Selecione o Plano Protetor</label>
+                            <div class="space-y-2 text-white">
+                                <label class="flex items-center gap-3 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                    <input type="radio" name="plan" value="diaria" checked onchange="changePlan('diaria')" class="accent-blue-500">
+                                    <div>
+                                        <span class="block text-sm font-bold">⚡ Diária Gamer (Terça a Quinta)</span>
+                                        <span class="text-xs text-gray-400">R$ 89,90 / dia</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                    <input type="radio" name="plan" value="fds" onchange="changePlan('fds')" class="accent-blue-500">
+                                    <div>
+                                        <span class="block text-sm font-bold">🎮 Combo Fim de Semana (Sexta a Segunda)</span>
+                                        <span class="text-xs text-gray-400">R$ 249,90 (4 dias cheios de gameplay)</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                    <input type="radio" name="plan" value="semanal" onchange="changePlan('semanal')" class="accent-blue-500">
+                                    <div>
+                                        <span class="block text-sm font-bold">🏆 Missão Semanal (7 dias)</span>
+                                        <span class="text-xs text-gray-400">R$ 369,90 / semana</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                    <input type="radio" name="plan" value="mensal" onchange="changePlan('mensal')" class="accent-blue-500">
+                                    <div>
+                                        <span class="block text-sm font-bold">📅 Plano Mensal Recorrente</span>
+                                        <span class="text-xs text-gray-400">R$ 449,90 / mês</span>
+                                    </div>
+                                </label>
+                                <label class="flex items-center gap-3 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                    <input type="radio" name="plan" value="anual" onchange="changePlan('anual')" class="accent-blue-500">
+                                    <div>
+                                        <span class="block text-sm font-bold">👑 Plano Anual Fidelidade (12 meses)</span>
+                                        <span class="text-xs text-gray-400">R$ 299,90 / mês</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- MULTIPLICADORES, CONTROLES E ADICIONAIS -->
+                        <div class="space-y-5 text-white">
+                            <!-- DIÁRIAS (SOMENTE PLANO DIÁRIO) -->
+                            <div id="daysWrapper" class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-gray-400">Multiplicador de Diárias</label>
+                                <select id="daysCount" onchange="onDaysCountChange()" class="w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500">
+                                    <option value="1">1 Diária</option>
+                                    <option value="2">2 Diárias</option>
+                                    <option value="3">3 Diárias</option>
+                                </select>
+                            </div>
+
+                            <!-- QUANTIDADE DE CONSOLES -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Quantidade de Consoles (PS5)</label>
+                                <select id="consoleQty" class="w-full bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-gray-400 cursor-not-allowed" disabled>
+                                    <option value="1" selected>1 Console</option>
+                                </select>
+                                <div class="text-[10px] text-yellow-500 mt-1 font-semibold leading-normal">
+                                    ⚠️ Para alugar mais do que 1 console, indique a quantidade pretendida no campo "Observações" abaixo.
+                                </div>
+                            </div>
+
+                            <!-- CONTROLES -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Quantidade de Controles DualSense</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center justify-center gap-2 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                        <input type="radio" name="controllers" value="1" checked onchange="calculateTotal()" class="accent-blue-500">
+                                        <span class="text-sm font-bold">1 Controle</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                        <input type="radio" name="controllers" value="2" onchange="calculateTotal()" class="accent-blue-500">
+                                        <span class="text-sm font-bold">2 Controles</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- BASE DE CARREGAMENTO -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Adicionar Base de Carregamento PlayStation? (Super Promoção! 🔌)</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label id="chargingLabelNo" class="flex items-center justify-center gap-2 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                        <input type="radio" name="charging" value="no" checked onchange="calculateTotal()" class="accent-blue-500">
+                                        <span class="text-sm font-bold">❌ Não</span>
+                                    </label>
+                                    <label id="chargingLabelYes" class="flex items-center justify-center gap-2 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                        <input type="radio" name="charging" value="yes" onchange="calculateTotal()" class="accent-blue-500">
+                                        <span class="text-sm font-bold">🔌 Sim (Efeito Pro)</span>
+                                    </label>
+                                </div>
+                                <div id="chargingWarning" class="text-[10px] text-yellow-500 mt-1 font-semibold hidden">
+                                    ⚠️ A base de carregamento está disponível apenas para pacotes com 2 controles.
+                                </div>
+                            </div>
+
+                            <!-- MONITOR GAMER -->
+                            <div class="space-y-2">
+                                <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Incluir Monitor Gamer AOC 27" 165Hz?</label>
+                                <div class="grid grid-cols-2 gap-2">
+                                    <label class="flex items-center justify-center gap-2 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                        <input type="radio" name="monitor" value="no" checked onchange="calculateTotal()" class="accent-blue-500">
+                                        <span class="text-sm font-bold">❌ Não</span>
+                                    </label>
+                                    <label class="flex items-center justify-center gap-2 bg-black/30 border border-zinc-800 p-3 rounded-xl cursor-pointer hover:border-zinc-700 transition-all">
+                                        <input type="radio" name="monitor" value="yes" onchange="calculateTotal()" class="accent-blue-500">
+                                        <span class="text-sm font-bold">🖥️ Sim (+ Desempenho)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr class="border-zinc-800/80 my-4">
+
+                <!-- OBSERVAÇÕES / PEDIDOS ESPECIAIS -->
+                <div class="space-y-2">
+                    <label class="text-xs font-bold uppercase tracking-wider text-gray-400 block">Observações / Pedidos Especiais</label>
+                    <textarea id="observations" placeholder="Deseja mais do que um console, jogos adicionais ou tem algum pedido especial? Escreva suas notas aqui..." rows="3"
+                              class="w-full bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white transition-all"></textarea>
+                </div>
+
+                <hr class="border-zinc-800/80 my-4">
+
+                <!-- NOVO COMPONENTE: 4. AGENDAMENTO DO DROP (CALENDÁRIO GAMER) -->
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-bold text-blue-400 uppercase tracking-wide">4. Agendamento do Drop (Calendário Gamer)</h4>
+                        <span class="text-xs text-gray-500">Selecione a data de despacho</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-black/20 p-4 rounded-2xl border border-zinc-800/60">
+                        <!-- CALENDÁRIO INTERATIVO -->
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between px-2">
+                                <button type="button" onclick="navigateCalendar(-1)" class="p-2 border border-zinc-700 hover:border-blue-500 rounded-lg text-xs font-bold transition-all cursor-pointer">◀ Prev</button>
+                                <span id="calendarMonthYear" class="text-sm font-black text-white uppercase tracking-wider">Junho de 2026</span>
+                                <button type="button" onclick="navigateCalendar(1)" class="p-2 border border-zinc-700 hover:border-blue-500 rounded-lg text-xs font-bold transition-all cursor-pointer">Next ▶</button>
+                            </div>
+
+                            <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-black text-gray-500 uppercase tracking-wider">
+                                <div>Dom</div>
+                                <div>Seg</div>
+                                <div>Ter</div>
+                                <div>Qua</div>
+                                <div>Qui</div>
+                                <div>Sex</div>
+                                <div>Sáb</div>
+                            </div>
+
+                            <div id="calendarDaysGrid" class="grid grid-cols-7 gap-1">
+                                <!-- Dias serão renderizados dinamicamente pelo JS -->
+                            </div>
+                        </div>
+
+                        <!-- RESUMO DA RESERVA / FEEDBACK -->
+                        <div class="flex flex-col justify-between p-4 bg-zinc-950/40 border border-zinc-800 rounded-xl space-y-4">
+                            <div>
+                                <h5 class="text-xs uppercase font-black tracking-wider text-blue-400 mb-3 border-b border-zinc-800 pb-1">📑 Status do Drop</h5>
+                                <div class="space-y-3 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400 text-xs">Despacho / Entrega:</span>
+                                        <span id="displayStartDate" class="font-bold text-white">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400 text-xs">Retirada / Devolução:</span>
+                                        <span id="displayEndDate" class="font-bold text-white">-</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-400 text-xs">Duração do Aluguel:</span>
+                                        <span id="displayDuration" class="font-bold text-blue-400">-</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="text-[10px] text-gray-500 leading-relaxed bg-black/40 p-2 rounded-lg">
+                                ⚠️ <strong>Instruções de Agendamento:</strong> As entregas e coletas são feitas no período comercial da tarde. Verifique se haverá alguém responsável no endereço.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DISPLAY VALOR ESTIMADO -->
+                <div class="bg-black/50 border border-zinc-800 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 mt-6">
+                    <div>
+                        <span class="text-xs uppercase tracking-wider font-bold text-gray-400 block">Valor Estimado do Drop (Aluguel + Logística)</span>
+                        <div class="text-2xl md:text-3xl font-black text-blue-400 neon-text" id="totalDisplay">R$ 89,90</div>
+                    </div>
+                    <div class="text-center md:text-right text-xs text-gray-400 max-w-xs leading-relaxed">
+                        *Incluso console PS5 Slim Disc com acesso digital instantâneo a mais de 300 jogos via subscrição PS Plus Extra ativa!
+                    </div>
+                </div>
+
+                <!-- SUBMIT BOTÃO -->
+                <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black uppercase tracking-wider py-4 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm md:text-base cursor-pointer">
+                    🚀 CONVERTER DROP NO WHATSAPP
+                </button>
+            </form>
+        </section>
+
+        <!-- SEÇÃO DE VANTAGENS -->
+        <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-zinc-900/50 border border-zinc-800 p-5 rounded-xl space-y-2">
+                <div class="text-2xl">🕹️</div>
+                <h4 class="font-bold text-white">Catálogo 100% Livre</h4>
+                <p class="text-xs text-gray-400 leading-relaxed">Conecte no Wi-Fi e baixe mais de 300 titles digitais instantaneamente via PS Plus Extra dedicada.</p>
+            </div>
+            <div class="bg-zinc-900/50 border border-zinc-800 p-5 rounded-xl space-y-2">
+                <div class="text-2xl">🧼</div>
+                <h4 class="font-bold text-white">Higiene Absoluta</h4>
+                <p class="text-xs text-gray-400 leading-relaxed">Equipamento e controles totalmente esterilizados e higienizados de forma cirúrgica antes de cada despacho.</p>
+            </div>
+            <div class="bg-zinc-900/50 border border-zinc-800 p-5 rounded-xl space-y-2">
+                <div class="text-2xl">🏅</div>
+                <h4 class="font-bold text-white">Gamificação de Descontos</h4>
+                <p class="text-xs text-gray-400 leading-relaxed">Cada diária acumulada vira XP real na sua conta, garantindo reduções brutais nos seus próximos drops!</p>
+            </div>
+        </section>
+    </main>
+
+    <footer class="border-t border-gray-800 bg-black/30 py-4 text-center text-xs text-gray-500">
+        &copy; 2026 PlayPixelGen Game House. Todos os direitos reservados.
+    </footer>
+
+    <!-- LÓGICA DE NEGÓCIO, MÁSCARAS E INTEGRAÇÃO ViaCEP + OPENSTREETMAP + CALENDÁRIO AUTOMÁTICO -->
+    <script>
+        (function() {
+            // Configurações Logísticas da PlayPixelGen (Valores reais e legíveis)
+            const WHATSAPP_PHONE = "5585991228962";
+            const VIACEP_BASE_URL = "https://viacep.com.br/ws/";
+            const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search?format=json&postalcode=";
+            const NOMINATIM_BACKUP_URL = "https://nominatim.openstreetmap.org/search?format=json&q=";
+
+            // Hub central: Rua 39, 70 - Jereissati - Setor A, Maracanaú - CE, 61900-650
+            const HUB_LAT = -3.8703;
+            const HUB_LON = -38.6225;
+            const RATE_PER_KM = 1.50; // R$ 1,50 por km em cada trecho (Ida e Volta)
+
+            // Armazenamento global de estados de validação
+            let calculatedDistanceKm = 0;
+            let deliveryFee = 0;
+            let returnFee = 0;
+            let areaBlocked = false;
+            let emailValid = false;
+            let nameValid = false;
+            let phoneValid = false;
+
+            // Estados do Calendário Gamer
+            let calendarYear = 2026;
+            let calendarMonth = 5; // Junho (0-indexed)
+            let selectedStartDate = null;
+            let selectedEndDate = null;
+            let currentPlan = 'diaria';
+
+            const MONTH_NAMES = [
+                "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+                "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
+            ];
+
+            // Referências DOM
+            const streetInput = document.getElementById("street");
+            const neighborhoodInput = document.getElementById("neighborhood");
+            const citySelect = document.getElementById("city");
+
+            const VALID_DDDS = [
+                11, 12, 13, 14, 15, 16, 17, 18, 19,
+                21, 22, 24, 27, 28,
+                31, 32, 33, 34, 35, 37, 38,
+                41, 42, 43, 44, 45, 46, 47, 48, 49,
+                51, 53, 54, 55,
+                61, 62, 63, 64, 65, 66, 67, 68, 69,
+                71, 73, 74, 75, 77, 79,
+                81, 82, 83, 84, 85, 86, 87, 88, 89,
+                91, 92, 93, 94, 95, 96, 97, 98, 99
+            ];
+
+            // Inicialização de Calendário no carregamento
+            window.onload = function() {
+                const today = new Date();
+                calendarYear = today.getFullYear();
+                calendarMonth = today.getMonth();
+                renderCalendar();
+                calculateTotal();
+            };
+
+            // Função de controle dinâmico para desbloqueio de inputs
+            function unlockField(field, placeholder) {
+                field.readOnly = false;
+                field.placeholder = placeholder;
+                field.className = "w-full bg-black/40 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-white transition-all";
+            }
+
+            // Função de controle dinâmico para trancamento de inputs (Sucesso CEP)
+            function lockField(field) {
+                field.readOnly = true;
+                field.className = "w-full bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-gray-400 cursor-not-allowed transition-all";
+            }
+
+            function unlockCity() {
+                citySelect.disabled = false;
+                citySelect.className = "w-full bg-zinc-950 border border-zinc-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 text-white transition-all";
+            }
+
+            function lockCity() {
+                citySelect.disabled = true;
+                citySelect.className = "w-full bg-zinc-950/60 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-gray-400 cursor-not-allowed transition-all";
+            }
+
+            // Bind das funções ao objeto window para uso no HTML, mantendo os scripts internos isolados
+            window.navigateCalendar = function(direction) {
+                calendarMonth += direction;
+                if (calendarMonth < 0) {
+                    calendarMonth = 11;
+                    calendarYear--;
+                } else if (calendarMonth > 11) {
+                    calendarMonth = 0;
+                    calendarYear++;
+                }
+                renderCalendar();
+            };
+
+            window.changePlan = function(plan) {
+                currentPlan = plan;
+                selectedStartDate = null;
+                selectedEndDate = null;
+                renderCalendar();
+                updateDateDisplay();
+                calculateTotal();
+            };
+
+            window.onDaysCountChange = function() {
+                selectedStartDate = null;
+                selectedEndDate = null;
+                renderCalendar();
+                updateDateDisplay();
+                calculateTotal();
+            };
+
+            window.validateName = function(val) {
+                const statusEl = document.getElementById("nameStatus");
+                const cleanName = val.trim();
+                const nameParts = cleanName.split(/\s+/);
+                
+                if (cleanName === "") {
+                    statusEl.innerText = "Insira seu nome completo para fins contratuais.";
+                    statusEl.className = "text-[10px] text-gray-500 mt-1";
+                    nameValid = false;
+                } else if (nameParts.length < 2 || nameParts[0].length < 2 || nameParts[1].length < 2) {
+                    statusEl.innerText = "❌ Digite seu nome COMPLETO (Nome e pelo menos um Sobrenome).";
+                    statusEl.className = "text-[10px] text-red-400 mt-1 font-bold";
+                    nameValid = false;
+                } else {
+                    statusEl.innerText = "✅ Nome completo validado com sucesso!";
+                    statusEl.className = "text-[10px] text-emerald-400 mt-1 font-bold";
+                    nameValid = true;
+                }
+                checkFormValidity();
+            };
+
+            window.maskPhone = function(input) {
+                let value = input.value.replace(/\D/g, "");
+                if (value.startsWith("55") && value.length > 2) {
+                    value = value.slice(2);
+                }
+                if (value.length > 11) value = value.slice(0, 11);
+                
+                let formatted = "+55 ";
+                if (value.length > 0) {
+                    if (value.length <= 2) {
+                        formatted += `(${value}`;
+                    } else if (value.length <= 7) {
+                        let ddd = value.slice(0, 2);
+                        let rest = value.slice(2);
+                        if (rest.charAt(0) !== '9' && rest.length > 0) {
+                            rest = '9' + rest.slice(1);
+                        }
+                        formatted += `(${ddd}) ${rest}`;
+                    } else {
+                        let ddd = value.slice(0, 2);
+                        let part1 = value.slice(2, 7);
+                        if (part1.charAt(0) !== '9') {
+                            part1 = '9' + part1.slice(1);
+                        }
+                        let part2 = value.slice(7);
+                        formatted += `(${ddd}) ${part1}-${part2}`;
+                    }
+                } else {
+                    formatted = "+55 ";
+                }
+                input.value = formatted;
+                validatePhone(input.value);
+            };
+
+            window.maskCEP = function(input) {
+                let value = input.value.replace(/\D/g, "");
+                if (value.length > 8) value = value.slice(0, 8);
+                if (value.length > 5) {
+                    input.value = `${value.slice(0, 5)}-${value.slice(5)}`;
+                } else {
+                    input.value = value;
+                }
+            };
+
+            window.searchCEP = async function(cepValue) {
+                const cleanCEP = cepValue.replace(/\D/g, "");
+                const statusEl = document.getElementById("cepStatus");
+                const logisticsResult = document.getElementById("logisticsResult");
+                const submitBtn = document.getElementById("submitBtn");
+                const blockBanner = document.getElementById("blockBanner");
+                
+                if (cleanCEP.length !== 8) {
+                    statusEl.innerText = "❌ CEP inválido (deve conter 8 números)";
+                    statusEl.className = "text-xs text-red-400 mt-1";
+                    unlockField(streetInput, "Digite a rua/avenida");
+                    unlockField(neighborhoodInput, "Digite o bairro");
+                    unlockCity();
+                    return;
+                }
+
+                statusEl.innerText = "🔄 Consultando coordenadas dos Correios...";
+                statusEl.className = "text-xs text-yellow-400 mt-1 animate-pulse";
+
+                try {
+                    const response = await fetch(`${VIACEP_BASE_URL}${cleanCEP}/json/`);
+                    const data = await response.json();
+
+                    if (data.erro) {
+                        statusEl.innerText = "❌ CEP não encontrado na base de dados!";
+                        statusEl.className = "text-xs text-red-400 mt-1";
+                        unlockField(streetInput, "Digite a rua/avenida");
+                        unlockField(neighborhoodInput, "Digite o bairro");
+                        unlockCity();
+                        return;
+                    }
+
+                    const cityName = data.localidade || "";
+                    const normalizedCity = cityName.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    const isValidCity = normalizedCity === "fortaleza" || normalizedCity === "maracanau";
+
+                    if (!isValidCity) {
+                        document.getElementById("blockCityName").innerText = cityName + " - " + (data.uf || "CE");
+                        blockBanner.classList.remove("hidden");
+                        logisticsResult.classList.add("hidden");
+                        areaBlocked = true;
+                        statusEl.innerText = "❌ Região não atendida pela PlayPixelGen.";
+                        statusEl.className = "text-xs text-red-400 mt-1 font-bold";
+
+                        streetInput.value = "";
+                        neighborhoodInput.value = "";
+                        lockField(streetInput);
+                        lockField(neighborhoodInput);
+                        lockCity();
+                        checkFormValidity();
+                        return;
+                    }
+
+                    blockBanner.classList.add("hidden");
+                    areaBlocked = false;
+                    checkFormValidity();
+
+                    if (data.logradouro && data.logradouro.trim() !== "") {
+                        streetInput.value = data.logradouro;
+                        lockField(streetInput);
+                    } else {
+                        unlockField(streetInput, "Digite a rua/avenida (Manual)");
+                    }
+
+                    if (data.bairro && data.bairro.trim() !== "") {
+                        neighborhoodInput.value = data.bairro;
+                        lockField(neighborhoodInput);
+                    } else {
+                        unlockField(neighborhoodInput, "Digite o bairro (Manual)");
+                    }
+
+                    document.getElementById("state").value = data.uf || "CE";
+
+                    if (normalizedCity === "fortaleza") {
+                        citySelect.value = "Fortaleza";
+                    } else {
+                        citySelect.value = "Maracanaú";
+                    }
+                    lockCity();
+
+                    statusEl.innerText = "✅ Endereço mapeado! Calculando distância real...";
+                    statusEl.className = "text-xs text-emerald-400 mt-1 font-bold";
+
+                    const geocodeUrl = `${NOMINATIM_BASE_URL}${cleanCEP}&country=Brazil&limit=1`;
+                    const geoResponse = await fetch(geocodeUrl);
+                    const geoData = await geoResponse.json();
+
+                    let clientLat = null;
+                    let clientLon = null;
+
+                    if (geoData && geoData.length > 0) {
+                        clientLat = parseFloat(geoData[0].lat);
+                        clientLon = parseFloat(geoData[0].lon);
+                    } else {
+                        try {
+                            const searchQuery = `${data.logradouro || ""}, ${data.bairro || ""}, ${data.localidade}, Ceará, Brazil&limit=1`;
+                            const backupRes = await fetch(`${NOMINATIM_BACKUP_URL}${encodeURIComponent(searchQuery)}`);
+                            const backupData = await backupRes.json();
+                            if (backupData && backupData.length > 0) {
+                                clientLat = parseFloat(backupData[0].lat);
+                                clientLon = parseFloat(backupData[0].lon);
+                            }
+                        } catch (backupErr) {}
+                    }
+
+                    let distance = 0;
+                    if (clientLat && clientLon) {
+                        distance = calculateHaversineDistance(HUB_LAT, HUB_LON, clientLat, clientLon);
+                    } else {
+                        distance = (citySelect.value === "Fortaleza") ? 18.0 : 4.0;
+                    }
+
+                    if (distance < 1.0) distance = 1.0;
+                    calculatedDistanceKm = distance;
+
+                    deliveryFee = calculatedDistanceKm * RATE_PER_KM;
+                    returnFee = calculatedDistanceKm * RATE_PER_KM;
+
+                    document.getElementById("calculatedKm").innerText = `${calculatedDistanceKm.toFixed(1)} km`;
+                    document.getElementById("deliveryTax").innerText = `R$ ${deliveryFee.toFixed(2).replace('.', ',')}`;
+                    document.getElementById("returnTax").innerText = `R$ ${returnFee.toFixed(2).replace('.', ',')}`;
+                    logisticsResult.classList.remove("hidden");
+
+                    statusEl.innerText = "✅ Logística de despacho traçada com sucesso!";
+                    statusEl.className = "text-xs text-emerald-400 mt-1 font-bold";
+
+                    calculateTotal();
+
+                } catch (error) {
+                    statusEl.innerText = "⚠️ Erro de conexão de mapas. Preenchimento manual de segurança ativado.";
+                    statusEl.className = "text-xs text-yellow-500 mt-1";
+                    unlockField(streetInput, "Digite a rua/avenida (Manual)");
+                    unlockField(neighborhoodInput, "Digite o bairro (Manual)");
+                    unlockCity();
+                }
+            };
+
+            window.assembleAndValidateEmail = function() {
+                const prefix = document.getElementById("emailPrefix").value.trim();
+                const statusEl = document.getElementById("emailStatus");
+
+                if (!prefix) {
+                    statusEl.innerText = "";
+                    emailValid = false;
+                    checkFormValidity();
+                    return;
+                }
+
+                const regex = /^[a-zA-Z0-9._-]+$/;
+                if (!regex.test(prefix)) {
+                    statusEl.innerText = "❌ Caracteres inválidos no e-mail (permite apenas letras, números, '.', '_' e '-').";
+                    statusEl.className = "text-[10px] text-red-400 mt-1 font-bold leading-normal";
+                    emailValid = false;
+                } else {
+                    statusEl.innerText = "✅ E-mail corporativo/pessoal seguro e validado para fins cadastrais!";
+                    statusEl.className = "text-[10px] text-emerald-400 mt-1 font-bold";
+                    emailValid = true;
+                }
+                checkFormValidity();
+            };
+
+            window.calculateTotal = function() {
+                const plan = document.querySelector('input[name="plan"]:checked').value;
+                const controllers = document.querySelector('input[name="controllers"]:checked').value;
+                const monitor = document.querySelector('input[name="monitor"]:checked').value;
+                const city = document.getElementById('city').value;
+                const daysWrapper = document.getElementById('daysWrapper');
+                const daysCount = parseInt(document.getElementById('daysCount').value);
+
+                const chargingRadios = document.querySelectorAll('input[name="charging"]');
+                const chargingWarning = document.getElementById('chargingWarning');
+                const chargingLabelYes = document.getElementById('chargingLabelYes');
+                const chargingLabelNo = document.getElementById('chargingLabelNo');
+
+                if (controllers === "1") {
+                    document.querySelector('input[name="charging"][value="no"]').checked = true;
+                    chargingRadios.forEach(radio => radio.disabled = true);
+                    
+                    chargingLabelYes.classList.add('opacity-40', 'cursor-not-allowed');
+                    chargingLabelNo.classList.add('opacity-40', 'cursor-not-allowed');
+                    chargingLabelYes.classList.remove('hover:border-zinc-700');
+                    chargingLabelNo.classList.remove('hover:border-zinc-700');
+                    
+                    chargingWarning.classList.remove('hidden');
+                } else {
+                    chargingRadios.forEach(radio => radio.disabled = false);
+                    chargingLabelYes.classList.remove('opacity-40', 'cursor-not-allowed');
+                    chargingLabelNo.classList.remove('opacity-40', 'cursor-not-allowed');
+                    chargingLabelYes.classList.add('hover:border-zinc-700');
+                    chargingLabelNo.classList.add('hover:border-zinc-700');
+                    
+                    chargingWarning.classList.add('hidden');
+                }
+
+                const chargingSelected = document.querySelector('input[name="charging"]:checked').value;
+                
+                let basePrice = 0;
+                let chargingFee = 0;
+                
+                if (calculatedDistanceKm === 0) {
+                    if (city === "Fortaleza") {
+                        deliveryFee = 25.00;
+                        returnFee = 25.00;
+                    } else {
+                        deliveryFee = 10.00;
+                        returnFee = 10.00;
+                    }
+                }
+
+                if (chargingSelected === "yes" && controllers === "2") {
+                    if (plan === 'diaria') {
+                        chargingFee = 1.00 * daysCount;
+                    } else if (plan === 'fds') {
+                        chargingFee = 2.90;
+                    } else if (plan === 'semanal') {
+                        chargingFee = 4.90;
+                    } else if (plan === 'mensal') {
+                        chargingFee = 9.90;
+                    } else if (plan === 'anual') {
+                        chargingFee = 4.90;
+                    }
+                }
+                
+                if (plan === 'diaria') {
+                    daysWrapper.style.display = 'block';
+                    if (controllers === '1' && monitor === 'no') basePrice = 89.90 * daysCount;
+                    if (controllers === '2' && monitor === 'no') basePrice = 119.90 * daysCount;
+                    if (controllers === '1' && monitor === 'yes') basePrice = 129.80 * daysCount;
+                    if (controllers === '2' && monitor === 'yes') basePrice = 159.80 * daysCount;
+                } else {
+                    daysWrapper.style.display = 'none';
+                    const extraControllerFee = (controllers === '2') ? 40.00 : 0.00;
+                    
+                    if (plan === 'fds') {
+                        if (controllers === '1' && monitor === 'no') basePrice = 249.90;
+                        if (controllers === '2' && monitor === 'no') basePrice = 289.90;
+                        if (controllers === '1' && monitor === 'yes') basePrice = 329.80;
+                        if (controllers === '2' && monitor === 'yes') basePrice = 369.80;
+                    } else if (plan === 'semanal') {
+                        basePrice = (monitor === 'yes') ? 499.80 : 369.90;
+                        basePrice += (controllers === '2') ? 30.00 : 0.00;
+                    } else if (plan === 'mensal') {
+                        basePrice = (monitor === 'yes') ? 599.90 : 449.90;
+                        basePrice += (controllers === '2') ? 30.00 : 0.00;
+                    } else if (plan === 'anual') {
+                        basePrice = (monitor === 'yes') ? 399.90 : 299.90;
+                        basePrice += (controllers === '2') ? 30.00 : 0.00;
+                    }
+                }
+
+                const totalWithLogistics = basePrice + deliveryFee + returnFee + chargingFee;
+                document.getElementById('totalDisplay').innerText = `R$ ${totalWithLogistics.toFixed(2).replace('.', ',')}`;
+                checkFormValidity();
+            };
+
+            window.sendToWhatsApp = function(event) {
+                event.preventDefault();
+
+                const emailPrefix = document.getElementById("emailPrefix").value.trim();
+                const emailDomain = document.getElementById("emailDomain").value;
+                const fullEmail = `${emailPrefix}@${emailDomain}`;
+                const observations = document.getElementById("observations").value.trim() || 'Nenhuma';
+
+                assembleAndValidateEmail();
+
+                if (areaBlocked || !nameValid || !phoneValid || !emailValid || !selectedStartDate || !selectedEndDate) {
+                    return;
+                }
+
+                const name = document.getElementById('name').value;
+                const phone = document.getElementById('phone').value;
+                
+                const cep = document.getElementById('cep').value;
+                const street = document.getElementById('street').value;
+                const number = document.getElementById('number').value;
+                const neighborhood = document.getElementById('neighborhood').value;
+                const city = document.getElementById('city').value;
+                const state = document.getElementById('state').value;
+
+                const planRadio = document.querySelector('input[name="plan"]:checked').value;
+                const controllers = document.querySelector('input[name="controllers"]:checked').value;
+                const monitor = document.querySelector('input[name="monitor"]:checked').value == 'yes' ? '🖥️ Sim (AOC 27" 165Hz)' : '❌ Não';
+                const charging = document.querySelector('input[name="charging"]:checked').value == 'yes' && controllers === "2" ? '🔌 Sim (Base Playstation)' : '❌ Não';
+                const total = document.getElementById('totalDisplay').innerText;
+                const daysCount = document.getElementById('daysCount').value;
+
+                let planName = "";
+                if (planRadio === 'diaria') planName = `⚡ Diária Gamer (${daysCount} dia(s))`;
+                if (planRadio === 'fds') planName = "🎮 Combo Fim de Semana Co-Op";
+                if (planRadio === 'semanal') planName = "🏆 Missão Semanal (7 dias)";
+                if (planRadio === 'mensal') planName = "📅 Plano Mensal (Recorrente)";
+                if (planRadio === 'anual') planName = "👑 Plano Anual (Fidelidade)";
+
+                const totalFreight = deliveryFee + returnFee;
+
+                const message = `🎮 *NOVO PEDIDO DE ALUGUEL - PLAYPIXELGEN* 🚀\n\n` +
+                                `👤 *Dados do Cliente (Player):*\n` +
+                                `- *Nome:* ${name} (Completo Validado)\n` +
+                                `- *WhatsApp:* ${phone} (Celular/DDD Mapeado)\n` +
+                                `- *E-mail:* ${fullEmail} (Canal Seguro)\n\n` +
+                                `📅 *Período do Agendamento:*\n` +
+                                `- *Início (Despacho):* ${formatDateBr(selectedStartDate)}\n` +
+                                `- *Devolução (Coleta):* ${formatDateBr(selectedEndDate)}\n\n` +
+                                `📍 *Coordenadas de Entrega:*\n` +
+                                `- *CEP:* ${cep}\n` +
+                                `- *Endereço:* ${street}, Nº ${number}\n` +
+                                `- *Bairro:* ${neighborhood}\n` +
+                                `- *Cidade:* ${city} - ${state}\n` +
+                                `- *Distância Mapeada do Hub:* ${calculatedDistanceKm.toFixed(1)} km\n\n` +
+                                `🚚 *Valores de Logística:*\n` +
+                                `- *Taxa de Entrega (Ida):* R$ ${deliveryFee.toFixed(2).replace('.', ',')}\n` +
+                                `- *Taxa de Devolução (Volta):* R$ ${returnFee.toFixed(2).replace('.', ',')}\n` +
+                                `- *Total de Logística:* R$ ${totalFreight.toFixed(2).replace('.', ',')}\n\n` +
+                                `📦 *Configuração do Setup:*\n` +
+                                `- *Consoles:* 1 Console\n` +
+                                `- *Controles:* ${controllers} DualSense\n` +
+                                `- *Base de Carregamento:* ${charging}\n` +
+                                `- *Monitor Gamer:* ${monitor}\n\n` +
+                                `📝 *Observações / Pedidos Especiais:*\n` +
+                                `"${observations}"\n\n` +
+                                `💰 *Valor Final do Drop (Aluguel + Logística):* ${total}\n\n` +
+                                `🔥 _Pedido cadastrado com dados, celular, e-mail e período de agendamento validados! No aguardo do contato para agendamento do console._`;
+
+                const whatsappUrl = `https://api.whatsapp.com/send?phone=${WHATSAPP_PHONE}&text=${encodeURIComponent(message)}`;
+                window.open(whatsappUrl, '_blank');
+            };
+
+            function validatePhone(phoneVal) {
+                const statusEl = document.getElementById("phoneStatus");
+                const digits = phoneVal.replace(/\D/g, "");
+                
+                if (digits.length === 0 || digits === "55") {
+                    statusEl.innerText = "Obrigatório celular: +55 (DDD) 9XXXX-XXXX";
+                    statusEl.className = "text-[10px] text-gray-500 mt-1";
+                    phoneValid = false;
+                    checkFormValidity();
+                    return;
+                }
+
+                if (digits.length < 4) {
+                    statusEl.innerText = "Digite o DDD após o +55.";
+                    statusEl.className = "text-[10px] text-yellow-500 mt-1";
+                    phoneValid = false;
+                    checkFormValidity();
+                    return;
+                }
+
+                const ddd = parseInt(digits.slice(2, 4));
+                const isDDDValid = VALID_DDDS.includes(ddd);
+
+                if (!isDDDValid) {
+                    statusEl.innerText = `❌ O DDD (${digits.slice(2, 4)}) não é um código de área válido no Brasil.`;
+                    statusEl.className = "text-[10px] text-red-400 mt-1 font-bold";
+                    phoneValid = false;
+                } else if (digits.length !== 13) {
+                    statusEl.innerText = "❌ O número deve conter DDD + 9 dígitos (padrão celular).";
+                    statusEl.className = "text-[10px] text-red-400 mt-1 font-bold";
+                    phoneValid = false;
+                } else if (digits.charAt(4) !== '9') {
+                    statusEl.innerText = "❌ Celulares exigem obrigatoriamente o nono dígito 9.";
+                    statusEl.className = "text-[10px] text-red-400 mt-1 font-bold";
+                    phoneValid = false;
+                } else {
+                    if (ddd === 85 || ddd === 88) {
+                        statusEl.innerText = "✅ Celular do Ceará validado com sucesso!";
+                        statusEl.className = "text-[10px] text-emerald-400 mt-1 font-bold";
+                    } else {
+                        statusEl.innerText = `✅ Celular brasileiro (DDD ${ddd}) validado com sucesso!`;
+                        statusEl.className = "text-[10px] text-emerald-400 mt-1 font-bold";
+                    }
+                    phoneValid = true;
+                }
+                checkFormValidity();
+            }
+
+            function checkFormValidity() {
+                const submitBtn = document.getElementById("submitBtn");
+                const nameInput = document.getElementById("name").value;
+                const phoneInput = document.getElementById("phone").value;
+                const emailPrefixInput = document.getElementById("emailPrefix").value;
+
+                if (areaBlocked) {
+                    submitBtn.disabled = true;
+                    submitBtn.className = "w-full bg-zinc-700 text-zinc-500 font-black uppercase tracking-wider py-4 px-6 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base";
+                    submitBtn.innerText = "⚠️ RESTRITO - REGIÃO NÃO ATENDIDA";
+                } else if (nameInput !== "" && !nameValid) {
+                    submitBtn.disabled = true;
+                    submitBtn.className = "w-full bg-zinc-700 text-zinc-500 font-black uppercase tracking-wider py-4 px-6 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base";
+                    submitBtn.innerText = "⚠️ RESTRITO - DIGITE NOME COMPLETO";
+                } else if (phoneInput !== "" && !phoneValid) {
+                    submitBtn.disabled = true;
+                    submitBtn.className = "w-full bg-zinc-700 text-zinc-500 font-black uppercase tracking-wider py-4 px-6 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base";
+                    submitBtn.innerText = "⚠️ RESTRITO - INSERIR CELULAR VÁLIDO";
+                } else if (emailPrefixInput !== "" && !emailValid) {
+                    submitBtn.disabled = true;
+                    submitBtn.className = "w-full bg-zinc-700 text-zinc-500 font-black uppercase tracking-wider py-4 px-6 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base";
+                    submitBtn.innerText = "⚠️ RESTRITO - PREFIXO DE E-MAIL INVÁLIDO";
+                } else if (!selectedStartDate || !selectedEndDate) {
+                    submitBtn.disabled = true;
+                    submitBtn.className = "w-full bg-zinc-800 text-zinc-500 border border-zinc-700 font-black uppercase tracking-wider py-4 px-6 rounded-xl cursor-not-allowed flex items-center justify-center gap-2 text-sm md:text-base";
+                    submitBtn.innerText = "⚠️ SELECIONE AS DATAS NO CALENDÁRIO";
+                } else {
+                    submitBtn.disabled = false;
+                    submitBtn.className = "w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-black uppercase tracking-wider py-4 px-6 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm md:text-base cursor-pointer";
+                    submitBtn.innerText = "🚀 CONVERTER DROP NO WHATSAPP";
+                }
+            }
+
+            function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                return R * c;
+            }
+
+            function renderCalendar() {
+                const titleEl = document.getElementById("calendarMonthYear");
+                titleEl.innerText = `${MONTH_NAMES[calendarMonth]} de ${calendarYear}`;
+
+                const gridEl = document.getElementById("calendarDaysGrid");
+                gridEl.innerHTML = "";
+
+                const firstDayOfWeek = new Date(calendarYear, calendarMonth, 1).getDay();
+                const totalDaysInMonth = new Date(calendarYear, calendarMonth + 1, 0).getDate();
+
+                for (let i = 0; i < firstDayOfWeek; i++) {
+                    const emptyCell = document.createElement("div");
+                    gridEl.appendChild(emptyCell);
+                }
+
+                const today = new Date();
+                today.setHours(0,0,0,0);
+
+                for (let day = 1; day <= totalDaysInMonth; day++) {
+                    const currentDate = new Date(calendarYear, calendarMonth, day);
+                    const dayOfWeek = currentDate.getDay();
+                    const dayBtn = document.createElement("button");
+                    dayBtn.type = "button";
+                    dayBtn.innerText = day;
+
+                    let isDisabled = currentDate < today;
+
+                    if (!isDisabled) {
+                        if (currentPlan === 'diaria') {
+                            const daysCount = parseInt(document.getElementById("daysCount").value);
+                            if (daysCount === 3) {
+                                isDisabled = (dayOfWeek !== 2);
+                            } else if (daysCount === 2) {
+                                isDisabled = (dayOfWeek !== 2 && dayOfWeek !== 3);
+                            } else {
+                                isDisabled = (dayOfWeek !== 2 && dayOfWeek !== 3 && dayOfWeek !== 4);
+                            }
+                        } else if (currentPlan === 'fds') {
+                            isDisabled = (dayOfWeek !== 5);
+                        } else {
+                            isDisabled = (dayOfWeek === 0);
+                        }
+                    }
+
+                    const isStart = selectedStartDate && currentDate.getTime() === selectedStartDate.getTime();
+                    const isEnd = selectedEndDate && currentDate.getTime() === selectedEndDate.getTime();
+                    const isInRange = selectedStartDate && selectedEndDate && currentDate > selectedStartDate && currentDate < selectedEndDate;
+
+                    let baseClasses = "aspect-square w-full rounded-xl text-xs font-bold transition-all focus:outline-none flex items-center justify-center ";
+
+                    if (isDisabled) {
+                        baseClasses += "text-zinc-700 cursor-not-allowed opacity-30";
+                        dayBtn.disabled = true;
+                    } else {
+                        dayBtn.onclick = () => selectStartDate(currentDate);
+
+                        if (isStart && isEnd) {
+                            baseClasses += "bg-gradient-to-r from-blue-600 to-purple-600 text-white font-black neon-border scale-105";
+                        } else if (isStart) {
+                            baseClasses += "bg-blue-600 text-white font-black rounded-r-none rounded-l-xl neon-border scale-105";
+                        } else if (isEnd) {
+                            baseClasses += "bg-purple-600 text-white font-black rounded-l-none rounded-r-xl neon-border scale-105";
+                        } else if (isInRange) {
+                            baseClasses += "bg-blue-500/20 text-blue-300 rounded-none border-y border-blue-500/20";
+                        } else {
+                            baseClasses += "text-gray-300 hover:bg-zinc-800 hover:text-white border border-zinc-800/60 hover:border-blue-500/60 cursor-pointer";
+                        }
+                    }
+
+                    dayBtn.className = baseClasses;
+                    gridEl.appendChild(dayBtn);
+                }
+            }
+
+            function selectStartDate(date) {
+                selectedStartDate = date;
+
+                let duration = 1;
+                if (currentPlan === 'diaria') {
+                    duration = parseInt(document.getElementById("daysCount").value);
+                } else if (currentPlan === 'fds') {
+                    duration = 4;
+                } else if (currentPlan === 'semanal') {
+                    duration = 7;
+                } else if (currentPlan === 'mensal' || currentPlan === 'anual') {
+                    duration = 30;
+                }
+
+                selectedEndDate = addDays(selectedStartDate, duration - 1);
+
+                renderCalendar();
+                updateDateDisplay();
+                calculateTotal();
+            }
+
+            function updateDateDisplay() {
+                const startEl = document.getElementById("displayStartDate");
+                const endEl = document.getElementById("displayEndDate");
+                const durEl = document.getElementById("displayDuration");
+
+                if (selectedStartDate && selectedEndDate) {
+                    startEl.innerText = formatDateBr(selectedStartDate);
+                    endEl.innerText = formatDateBr(selectedEndDate);
+
+                    let durationText = "";
+                    if (currentPlan === 'diaria') {
+                        const count = document.getElementById("daysCount").value;
+                        durationText = `${count} Diária(s)`;
+                    } else if (currentPlan === 'fds') {
+                        durationText = "Combo Fim de Semana (4 Dias)";
+                    } else if (currentPlan === 'semanal') {
+                        durationText = "Missão Semanal (7 Dias)";
+                    } else if (currentPlan === 'mensal') {
+                        durationText = "Plano Mensal (30 Dias)";
+                    } else if (currentPlan === 'anual') {
+                        durationText = "Plano Anual (12 Meses)";
+                    }
+                    durEl.innerText = durationText;
+                } else {
+                    startEl.innerText = "-";
+                    endEl.innerText = "-";
+                    durEl.innerText = "-";
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
